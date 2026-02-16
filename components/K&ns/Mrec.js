@@ -1,7 +1,15 @@
 import React from 'react';
 import '../../styles/Home.module.css'; // Import the CSS module
 
-export default function Mrec({ loading, sehriTime, iftariTime,sehriTimeJafria, iftariTimeJafria, city, date }) {
+const CITY_MAPPING = {
+  'Karachi': 'کراچی',
+  'Lahore': 'لاہور',
+  'Islamabad': 'اسلام آباد',
+  'Peshawar': 'پشاور',
+  'Quetta': 'کوئٹہ'
+};
+
+export default function Mrec({ loading, citiesData, date, city, sehriTime, iftariTime, sehriTimeJafria, iftariTimeJafria }) {
 
   if (loading) {
     return (
@@ -16,7 +24,92 @@ export default function Mrec({ loading, sehriTime, iftariTime,sehriTimeJafria, i
     );
   }
 
+  // Helper to strip "am/pm"
+  const formatTime = (timeStr) => {
+    if (!timeStr || timeStr === 'N/A') return '-';
+    // Remove am/pm case insensitively
+    return timeStr.replace(/\s*[ap]m/i, '').trim();
+  };
 
+  // New Mode: 5 Cities Table
+  if (citiesData && citiesData.length > 0) {
+    return (
+      <div className="bgRamadanK d-flex flex-column align-items-center justify-content-start text-white">
+        {/* Header Section */}
+        {/* Adjusted top margin to position date below the background title and save vertical space */}
+        <div className="text-center w-100 mb-0" style={{ marginTop: '26px', marginLeft: '62px' }}>
+          <div className="font-shadowK">
+            {/* <h5 className="mb-0 fw-bold fs-5">Ramadan Timing</h5> */}
+            {/* Reduced bottom margin to 0 */}
+            <p className="mb-1 fw-bold" style={{ fontSize: '0.75rem' }}>{date}</p>
+          </div>
+        </div>
+
+        {/* Table Section */}
+        <div className="w-100" style={{ fontSize: '0.7rem' }}>
+
+          {/* Fiqh Headers */}
+          <div className="d-flex justify-content-between align-items-center px-1 mb-1">
+            <div className="text-center w-40" style={{ marginTop: '5px' }}>
+              <span className="text-white fw-bold" style={{ fontSize: '1.0rem' }}>فقہ حنفی</span>
+              <div className="d-flex gap-1 justify-content-center text-white leading-none" style={{ fontSize: '0.65rem' }}>
+                <div className="text-center" style={{ width: '45px' }}>افطار</div>
+                <div className="text-center" style={{ width: '45px' }}>سحری</div>
+              </div>
+            </div>
+            <div className="w-20"></div> {/* Spacer for City Column */}
+            <div className="text-center w-40" style={{ marginTop: '5px' }}>
+              <span className="text-white fw-bold" style={{ fontSize: '1.0rem' }}>فقہ جعفریہ</span>
+              <div className="d-flex gap-1 justify-content-center text-white leading-none" style={{ fontSize: '0.65rem' }}>
+                <div className="text-center" style={{ width: '45px' }}>افطار</div>
+                <div className="text-center" style={{ width: '45px' }}>سحری</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Cities Data Rows */}
+          <div className="d-flex flex-column gap-1">
+            {citiesData.map((data, index) => (
+              <div key={index} className="d-flex justify-content-between align-items-center" style={{ lineHeight: '1' }}>
+
+                {/* Hanafi Times (Left) */}
+                <div className="d-flex gap-1 w-40 justify-content-center">
+                  <div className="bg-white text-danger fw-bold rounded px-0 text-center d-flex align-items-center justify-content-center" style={{ width: '45px', height: '20px', fontSize: '0.8rem' }}>
+                    {formatTime(data.iftariTime)}
+                  </div>
+                  <div className="bg-white text-danger fw-bold rounded px-0 text-center d-flex align-items-center justify-content-center" style={{ width: '45px', height: '20px', fontSize: '0.8rem' }}>
+                    {formatTime(data.sehriTime)}
+                  </div>
+                </div>
+
+                {/* City Name (Center) */}
+                <div className="bg-white text-danger fw-bold rounded px-1 py-0 text-center w-20 d-flex align-items-center justify-content-center" style={{ height: '22px', minWidth: '70px' }}>
+                  <span className="mb-0" style={{ fontSize: '1rem', fontFamily: 'Arial, sans-serif' }}>{CITY_MAPPING[data.city] || data.city}</span>
+                </div>
+
+                {/* Jafria Times (Right) */}
+                <div className="d-flex gap-1 w-40 justify-content-center">
+                  <div className="bg-white text-danger fw-bold rounded px-0 text-center d-flex align-items-center justify-content-center" style={{ width: '45px', height: '20px', fontSize: '0.8rem' }}>
+                    {formatTime(data.iftariTimeJafria)}
+                  </div>
+                  <div className="bg-white text-danger fw-bold rounded px-0 text-center d-flex align-items-center justify-content-center" style={{ width: '45px', height: '20px', fontSize: '0.8rem' }}>
+                    {formatTime(data.sehriTimeJafria)}
+                  </div>
+                </div>
+
+              </div>
+            ))}
+          </div>
+
+        </div>
+
+        {/* Footer Note - rendered very small to fit */}
+        <p className="p-note m-0 p-0 mt-1 text-center" style={{ fontSize: '0.5rem', lineHeight: '1' }}>Sehri and Iftar times may vary slightly (±1 min).</p>
+      </div>
+    );
+  }
+
+  // Fallback: Legacy Single City Mode
   return (
     <div className="bgRamadanK d-flex flex-column align-items-center justify-content-between text-white">
       <div className="text-center">
@@ -39,7 +132,7 @@ export default function Mrec({ loading, sehriTime, iftariTime,sehriTimeJafria, i
           style={{ borderSpacing: '2px', borderCollapse: 'separate' }} // Added spacing here
         >
           <tbody>
-            <tr> 
+            <tr>
               <td className="text-left md-font align-middle border-0 head-colorK" rowSpan="2">Iftari</td>
               <td className="span-bgK font-headingK">HANAFI</td>
               <td className="span-bgK timeK">{iftariTime} </td>
@@ -50,7 +143,7 @@ export default function Mrec({ loading, sehriTime, iftariTime,sehriTimeJafria, i
             </tr>
             <tr className="spacing-row"></tr>
             {/* Sehri Table */}
-            
+
             <tr>
               <td rowSpan="2" className="text-left md-font align-middle border-0 head-colorK">Sehri</td>
               <td className="span-bgK font-headingK">HANAFI</td>
