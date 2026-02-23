@@ -1,0 +1,9 @@
+/* HBL MREC Specific Styles - CSS Module */
+
+.hblTealText {
+    color: #009383 !important;
+}
+
+.hblBgWhite {
+    background-color: #ffffff !important;
+}
