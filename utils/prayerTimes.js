@@ -58,44 +58,41 @@ function adjustTime(timeStr, adjustment) {
 
 
 
+const cityCoordinates = {
+  'karachi': { lat: 24.8607, lng: 67.0011 },
+  // Add more cities as needed
+};
+
 export async function getPrayerTimes2(city) {
   try {
-    // API endpoint
-    const url = `https://muslimsalat.com/${city}/daily.json`;
+    const cityName = city.toLowerCase();
+    const coords = cityCoordinates[cityName] || cityCoordinates['karachi']; // Default to Karachi
 
-    // Make API request
-    const response = await axios.get(url, {
-      // params: {
-      //   key: 'your_api_key', // Replace with your MuslimSalat API key if required.
-      // },
-    });
+    const coordinates = new Coordinates(coords.lat, coords.lng);
+    const date = new Date();
+    const params = CalculationMethod.Karachi();
+    params.madhab = Madhab.Hanafi;
 
-    // Parse response data
-    const data = response.data;
+    const prayerTimes = new PrayerTimes(coordinates, date, params);
 
-    if (data.status_code !== 1) {
-      throw new Error(`Failed to fetch prayer times: ${data.status_description}`);
-    }
+    const formatTime = (date) => {
+      let hours = date.getHours();
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      const meridian = hours >= 12 ? 'pm' : 'am';
+      hours = hours % 12 || 12;
+      return `${hours}:${minutes} ${meridian}`;
+    };
 
-    // Extract Sehar (Fajr) and Iftar (Maghrib) times
-    const items = data.items[0];
-    const dateFor = items.date_for;
-    const formattedDate = moment(dateFor).format("Do MMMM YYYY");
+    const sehriTime = formatTime(prayerTimes.fajr);
+    const iftariTime = formatTime(prayerTimes.maghrib);
+    const formattedDate = moment(date).format("Do MMMM YYYY");
 
-    const sehriTime = items.fajr;
-    const iftariTime = items.maghrib;
-
-        // Decrement 1 minute for Sehri time
+    // Apply adjustments consistent with previous logic
     const updatedSehriTime = adjustTime(sehriTime, -2);
-
-    // Increment 1 minute for Iftar time
     const updatedIftariTime = adjustTime(iftariTime, 1);
-
     const iftariTimeJafria = adjustTime(updatedIftariTime, 10);
     const sehriTimejafria = adjustTime(updatedSehriTime, -10);
-    
 
-    // Return formatted times
     return {
       updatedSehriTime,
       updatedIftariTime,
@@ -103,12 +100,8 @@ export async function getPrayerTimes2(city) {
       iftariTimeJafria,
       formattedDate
     };
-    // return {
-    //       sehriTime: sehriTime,
-    //       iftariTime: iftariTime
-    // };
   } catch (error) {
-    console.error('Error fetching prayer times:', error.message);
+    console.error('Error calculating local prayer times:', error.message);
     throw error;
   }
 }
