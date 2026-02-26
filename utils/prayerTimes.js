@@ -60,7 +60,10 @@ function adjustTime(timeStr, adjustment) {
 
 const cityCoordinates = {
   'karachi': { lat: 24.8607, lng: 67.0011 },
-  // Add more cities as needed
+  'lahore': { lat: 31.5204, lng: 74.3587 },
+  'islamabad': { lat: 33.6844, lng: 73.0479 },
+  'peshawar': { lat: 34.0151, lng: 71.5249 },
+  'quetta': { lat: 30.1798, lng: 66.9750 },
 };
 
 export async function getPrayerTimes2(city) {
